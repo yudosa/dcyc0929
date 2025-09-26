@@ -89,12 +89,6 @@
 
 
 
-    <!-- 로고 슬라이더 -->
-    <div class="logo-slider-container">
-        <div class="logo-slider-track" id="logoSliderTrack">
-            <!-- 로고들이 JavaScript로 동적으로 추가됩니다 -->
-        </div>
-    </div>
     <script>
     // 시설 카드 클릭 시 시설명 저장 (자율이용 제외)
     document.querySelectorAll('.facility-card:not(#autonomousCard)').forEach(card => {
@@ -345,47 +339,6 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
-    // 전역 함수로 정의
-    window.initLogoSlider = function() {
-        const sliderTrack = document.getElementById('logoSliderTrack');
-        if (!sliderTrack) return;
-        
-        // 로고 이미지 배열
-        const logos = [
-            'logo1.png', 'logo2.png', 'logo3.png', 'logo4.png', 'logo5.png',
-            'logo6.png', 'logo7.png', 'logo8.png', 'logo9.png', 'logo10.png',
-            'logo11.png', 'logo12.png'
-        ];
-        
-        // 로고들을 두 번 반복해서 추가 (무한 루프 효과)
-        const logoHTML = [...logos, ...logos].map(logo => 
-            `<img src="${logo}" alt="로고" class="logo-item" loading="lazy">`
-        ).join('');
-        
-        sliderTrack.innerHTML = logoHTML;
-        
-        // 애니메이션 시작
-        let position = 0;
-        const speed = 0.3; // 이동 속도 (더 천천히)
-        
-        function animate() {
-            position -= speed;
-            sliderTrack.style.transform = `translateX(${position}px)`;
-            
-            // 첫 번째 세트가 완전히 사라지면 위치 리셋
-            const logoWidth = sliderTrack.children[0].offsetWidth + 20; // 로고 너비 + 간격
-            const resetPoint = logoWidth * logos.length;
-            
-            if (position <= -resetPoint) {
-                position = 0;
-            }
-            
-            requestAnimationFrame(animate);
-        }
-        
-        // 애니메이션 시작
-        setTimeout(animate, 500);
-    }
     
     // 전역 함수로 정의
     window.initProgramSlider = function() {
@@ -622,7 +575,6 @@
 
     // 페이지 로드 후 슬라이더들 시작
     document.addEventListener('DOMContentLoaded', function() {
-        window.initLogoSlider();
         initSimpleProgramSlider();
     });
     </script>
@@ -737,39 +689,6 @@
     }
 
 
-    /* 로고 슬라이더 스타일 */
-    .logo-slider-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 120px;
-        background: transparent;
-        overflow: hidden;
-        z-index: 1000;
-    }
-    
-    .logo-slider-track {
-        display: flex;
-        align-items: center;
-        height: 100%;
-        gap: 20px;
-        white-space: nowrap;
-        will-change: transform;
-    }
-    
-    .logo-item {
-        height: 100px;
-        width: auto;
-        object-fit: contain;
-        flex-shrink: 0;
-        opacity: 0.8;
-        transition: opacity 0.3s ease;
-    }
-    
-    .logo-item:hover {
-        opacity: 1;
-    }
 
     /* 프로그램 슬라이더 스타일 */
     .program-slider-section {
@@ -926,33 +845,9 @@
 
     /* 반응형 디자인 */
     @media (max-width: 768px) {
-
-        .logo-slider-container {
-            height: 100px;
-        }
-        
-        .logo-item {
-            height: 80px;
-        }
-        
-        .logo-slider-track {
-            gap: 15px;
-        }
     }
     
     @media (max-width: 480px) {
-
-        .logo-slider-container {
-            height: 90px;
-        }
-        
-        .logo-item {
-            height: 70px;
-        }
-        
-        .logo-slider-track {
-            gap: 12px;
-        }
 
         /* 프로그램 슬라이더 모바일 스타일 */
         .program-slider-section {
