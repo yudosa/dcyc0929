@@ -88,45 +88,6 @@
     </div>
 
 
-    <!-- 연락처 및 운영시간 정보 -->
-    <div class="contact-hours-info">
-        <div class="contact-info">
-            <div class="contact-details">
-                <div class="section-label">이용문의</div>
-                <div class="phone-number">031-1111-2222</div>
-                <div class="phone-label">방과후아카데미</div>
-                <div class="phone-number">031-3333-4444</div>
-                <div class="phone-label">대표번호: 02-2135-9340</div>
-                <div class="email">대표메일: info@standpoint.co.kr</div>
-            </div>
-        </div>
-        <div class="hours-info">
-            <div class="hours-details">
-                <div class="section-label">운영시간</div>
-                <div class="hours-row">
-                    <span class="day">화~금</span>
-                    <span class="time">09:00~20:00</span>
-                </div>
-                <div class="hours-row">
-                    <span class="day">토요일</span>
-                    <span class="time">10:00~18:00</span>
-                </div>
-                <div class="hours-row">
-                    <span class="day">일요일</span>
-                    <span class="time">10:00~15:00</span>
-                </div>
-                <div class="hours-row">
-                    <span class="day">화~금</span>
-                    <span class="time">09:00~21:00</span>
-                </div>
-                <div class="hours-row">
-                    <span class="day">토~일</span>
-                    <span class="time">13:00~20:00</span>
-                </div>
-                <div class="closed-days">*휴관일: 월요일, 공휴일, 근로자의날</div>
-            </div>
-        </div>
-    </div>
 
     <!-- 로고 슬라이더 -->
     <div class="logo-slider-container">
@@ -775,112 +736,6 @@
         margin-top: 10px !important;
     }
 
-    /* 연락처 및 운영시간 정보 스타일 */
-    .contact-hours-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        margin: 20px 0;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .contact-hours-info::before {
-        content: '';
-        position: absolute;
-        top: -50px;
-        left: -50px;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-        border-radius: 50%;
-        z-index: 1;
-    }
-
-    .contact-hours-info::after {
-        content: '';
-        position: absolute;
-        bottom: -30px;
-        right: -30px;
-        width: 150px;
-        height: 150px;
-        background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-        border-radius: 50%;
-        z-index: 1;
-    }
-
-    .contact-info, .hours-info {
-        flex: 1;
-        position: relative;
-        z-index: 2;
-        padding: 0 10px;
-    }
-
-    .section-label {
-        color: #666;
-        font-size: 0.9rem;
-        font-weight: 400;
-        margin-bottom: 8px;
-        text-align: left;
-    }
-
-    .contact-details, .hours-details {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .phone-number {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #1976d2;
-        text-align: center;
-    }
-
-    .phone-label {
-        font-size: 0.9rem;
-        color: #666;
-        text-align: center;
-        margin-bottom: 5px;
-    }
-
-    .email {
-        font-size: 0.9rem;
-        color: #1976d2;
-        text-align: center;
-        font-weight: 600;
-    }
-
-    .hours-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 5px 0;
-    }
-
-    .day {
-        font-weight: 600;
-        color: #333;
-        font-size: 0.95rem;
-    }
-
-    .time {
-        font-weight: 700;
-        color: #1976d2;
-        font-size: 0.95rem;
-    }
-
-    .closed-days {
-        font-size: 0.85rem;
-        color: #666;
-        text-align: center;
-        margin-top: 10px;
-        font-style: italic;
-    }
 
     /* 로고 슬라이더 스타일 */
     .logo-slider-container {
@@ -1071,15 +926,6 @@
 
     /* 반응형 디자인 */
     @media (max-width: 768px) {
-        .contact-hours-info {
-            flex-direction: column;
-            gap: 20px;
-            padding: 15px;
-        }
-
-        .contact-info, .hours-info {
-            padding: 0;
-        }
 
         .logo-slider-container {
             height: 100px;
@@ -1095,27 +941,6 @@
     }
     
     @media (max-width: 480px) {
-        .contact-hours-info {
-            padding: 12px;
-            margin: 15px 0;
-        }
-
-        .contact-info h3, .hours-info h3 {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-        }
-
-        .phone-number {
-            font-size: 1rem;
-        }
-
-        .phone-label, .email {
-            font-size: 0.85rem;
-        }
-
-        .day, .time {
-            font-size: 0.9rem;
-        }
 
         .logo-slider-container {
             height: 90px;
