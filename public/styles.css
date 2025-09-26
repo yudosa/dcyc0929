@@ -26,12 +26,16 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+/* 스탠바이미 세로 모드 최적화 */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #333;
     background: #f5f5f5;
     min-height: 100vh;
+    /* 스탠바이미 세로 모드 해상도에 최적화 */
+    max-width: 1080px;
+    margin: 0 auto;
 }
 
 .container {
@@ -42,14 +46,13 @@ body {
     min-height: 100vh;
 }
 
-/* 배너 섹션 */
+/* 배너 섹션 - 스탠바이미 세로 모드 최적화 */
 .banner-section {
     position: relative;
     width: 100%;
-    height: 0;
-    padding-bottom: 40%; /* 2.5:1 비율 (100/2.5 = 40%) */
-    min-height: 200px;
-    max-height: 400px;
+    height: 35vh; /* 고정 높이 - 스탠바이미 세로 모드 최적화 */
+    min-height: 300px;
+    max-height: 600px;
     overflow: hidden;
     border-radius: 0;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
@@ -137,12 +140,13 @@ body {
 }
 
 
-/* 서비스 섹션 */
+/* 서비스 섹션 - 스탠바이미 세로 모드 최적화 */
 .services-section {
-    padding: 10px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
+    /* 스탠바이미에서 더 큰 터치 영역 제공 */
 }
 
 .service-category {
@@ -166,21 +170,22 @@ body {
     gap: 12px;
 }
 
+/* 스탠바이미 세로 모드용 서비스 카드 최적화 */
 .service-card {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: 15px;
-    border-radius: 15px;
+    padding: 25px;
+    border-radius: 20px;
     text-decoration: none;
     color: white;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.4rem; /* 스탠바이미용 폰트 크기 증가 */
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    min-height: 100px;
-    gap: 15px;
+    min-height: 140px; /* 스탠바이미용 높이 증가 */
+    gap: 20px;
 }
 
 .service-card:hover {
@@ -208,9 +213,10 @@ body {
     margin-bottom: 0;
 }
 
+/* 스탠바이미 세로 모드용 카드 이미지 최적화 */
 .card-image {
-    width: 100px;
-    height: 100px;
+    width: 120px; /* 스탠바이미용 이미지 크기 증가 */
+    height: 120px;
     object-fit: contain;
     object-position: center;
     display: block;
@@ -500,12 +506,12 @@ body {
     }
 }
 
-/* 현재 시간 표시 - 디지털 시계 스타일 */
+/* 현재 시간 표시 - 스탠바이미 세로 모드 최적화 */
 .current-datetime {
     position: absolute;
     top: 30px;
     right: 30px;
-    font-size: 1.4rem;
+    font-size: 1.6rem; /* 스탠바이미용 폰트 크기 증가 */
     font-weight: 700;
     color: #1e3a8a;
     z-index: 10;
@@ -513,16 +519,69 @@ body {
     letter-spacing: 1px;
     text-align: center;
     line-height: 1.2;
-    background: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    background: rgba(255,255,255,0.9) !important;
+    padding: 8px 12px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* 스탠바이미 세로 모드 전용 최적화 (1080x1920) */
+@media (min-width: 1080px) and (min-height: 1920px) {
+    body {
+        max-width: 1080px;
+        margin: 0 auto;
+        font-size: 18px; /* 기본 폰트 크기 증가 */
+    }
+    
+    .banner-section {
+        height: 40vh;
+        min-height: 400px;
+        max-height: 700px;
+    }
+    
+    .services-section {
+        padding: 40px;
+        gap: 30px;
+    }
+    
+    .service-card {
+        padding: 40px;
+        font-size: 1.8rem;
+        min-height: 180px;
+        gap: 30px;
+    }
+    
+    .card-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .info-section {
+        padding: 30px;
+        margin: 20px;
+    }
+    
+    .info-value {
+        font-size: 1.4rem;
+    }
+    
+    .info-label {
+        font-size: 1.1rem;
+    }
+    
+    .current-datetime {
+        font-size: 2.2rem;
+        top: 40px;
+        right: 40px;
+        padding: 12px 20px !important;
+        border-radius: 16px !important;
+    }
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .banner-section {
-        padding-bottom: 40%; /* 2.5:1 비율 유지 */
+        height: 30vh;
         min-height: 180px;
         max-height: 300px;
     }
