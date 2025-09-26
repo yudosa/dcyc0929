@@ -401,6 +401,7 @@
                     <button id="csvStartBtn" class="btn-secondary-centered" style="padding:6px 18px; font-size:1rem; color:#222; min-width:120px;"></button>
                     ~
                     <button id="csvEndBtn" class="btn-secondary-centered" style="padding:6px 18px; font-size:1rem; color:#222; min-width:120px;"></button>
+                    <button id="searchRangeBtn" class="btn-secondary-centered" style="margin-left:8px; color:#222; font-size:1rem; padding:6px 10px;"><span style="font-size:1.15em;margin-right:6px;">🔍</span>기간 조회</button>
                     <button id="csvDownloadBtn" class="btn-secondary-centered" style="margin-left:8px; color:#222; font-size:1rem; padding:6px 10px;"><span style="font-size:1.15em;margin-right:6px;">📥</span>자료 받기</button>
                 </div>
             </div>
@@ -766,6 +767,48 @@
     document.getElementById('csvEndBtn').onclick = function() {
         showCalendarModal(csvEnd, function(dateStr){ csvEnd = dateStr; updateCsvRangeBtns(); });
     };
+    
+    // 기간 조회 버튼 기능 추가
+    document.getElementById('searchRangeBtn').onclick = async function() {
+        if(!csvStart || !csvEnd) { 
+            alert('기간을 모두 선택하세요.'); 
+            return; 
+        }
+        
+        // 기간이 너무 길면 경고
+        const startDate = new Date(csvStart);
+        const endDate = new Date(csvEnd);
+        const diffTime = Math.abs(endDate - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays > 31) {
+            alert('조회 기간은 31일 이내로 설정해주세요.');
+            return;
+        }
+        
+        try {
+            // 로딩 표시
+            const ganttContainer = document.getElementById('ganttTimelineWrap');
+            ganttContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#666;"><i class="fa fa-spinner fa-spin" style="font-size:2rem;"></i><br><br>데이터를 불러오는 중...</div>';
+            
+            // 기간 데이터 조회
+            const response = await fetch(`/api/reservations/range?start=${csvStart}&end=${csvEnd}`);
+            if (!response.ok) {
+                throw new Error('데이터를 불러올 수 없습니다.');
+            }
+            
+            const rangeReservations = await response.json();
+            
+            // 날짜별로 그룹화하여 표시
+            showRangeReservations(rangeReservations, csvStart, csvEnd);
+            
+        } catch (error) {
+            console.error('기간 조회 오류:', error);
+            alert('기간 조회 중 오류가 발생했습니다.');
+            // 원래 단일 날짜 조회로 복원
+            await loadAndRenderGanttTimeline(selectedCategory);
+        }
+    };
     // SheetJS 라이브러리 추가
     if (!window.XLSX) {
         const script = document.createElement('script');
@@ -988,6 +1031,81 @@
         // status 관계없이 모든 예약 표시
         renderGanttTimeline(reservations, filteredSpaces, 9, endHour);
     }
+    // 기간 조회 결과 표시 함수
+    function showRangeReservations(reservations, startDate, endDate) {
+        const container = document.getElementById('ganttTimelineWrap');
+        
+        // 날짜별로 그룹화
+        const groupedByDate = {};
+        reservations.forEach(res => {
+            const date = res.date;
+            if (!groupedByDate[date]) {
+                groupedByDate[date] = [];
+            }
+            groupedByDate[date].push(res);
+        });
+        
+        // 날짜 순으로 정렬
+        const sortedDates = Object.keys(groupedByDate).sort();
+        
+        let html = `<div style="background:#fff; border-radius:12px; padding:20px;">`;
+        html += `<h3 style="color:#2c3e50; margin-bottom:20px; text-align:center;">📅 기간 조회 결과 (${startDate} ~ ${endDate})</h3>`;
+        
+        if (sortedDates.length === 0) {
+            html += `<div style="text-align:center; padding:40px; color:#666;">해당 기간에 예약이 없습니다.</div>`;
+        } else {
+            sortedDates.forEach(date => {
+                const dateReservations = groupedByDate[date];
+                const dateObj = new Date(date);
+                const formattedDate = formatDateKorean(date);
+                
+                html += `<div style="margin-bottom:25px; border:1px solid #e0e0e0; border-radius:8px; padding:15px;">`;
+                html += `<h4 style="color:#3498db; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:8px;">${formattedDate} (총 ${dateReservations.length}건)</h4>`;
+                
+                // 시설별로 그룹화
+                const groupedByFacility = {};
+                dateReservations.forEach(res => {
+                    const facility = res.facility || res.space || '기타';
+                    if (!groupedByFacility[facility]) {
+                        groupedByFacility[facility] = [];
+                    }
+                    groupedByFacility[facility].push(res);
+                });
+                
+                Object.keys(groupedByFacility).forEach(facility => {
+                    const facilityReservations = groupedByFacility[facility];
+                    html += `<div style="margin-bottom:15px;">`;
+                    html += `<h5 style="color:#e74c3c; margin-bottom:10px;">${facility} (${facilityReservations.length}건)</h5>`;
+                    
+                    facilityReservations.forEach(res => {
+                        const statusText = res.status === 'cancelled' ? ' [취소됨]' : '';
+                        const statusStyle = res.status === 'cancelled' ? 'opacity:0.6; text-decoration:line-through;' : '';
+                        
+                        html += `<div style="background:#f8f9fa; padding:8px 12px; margin-bottom:5px; border-radius:6px; font-size:0.9rem; ${statusStyle}">`;
+                        html += `<strong>${res.name}</strong> | `;
+                        html += `${res.start_time} ~ ${res.end_time} | `;
+                        if (res.detail && res.detail !== '-') {
+                            html += `${res.detail} | `;
+                        }
+                        html += `${res.phone}${statusText}`;
+                        html += `</div>`;
+                    });
+                    
+                    html += `</div>`;
+                });
+                
+                html += `</div>`;
+            });
+        }
+        
+        html += `<div style="text-align:center; margin-top:20px;">`;
+        html += `<button class="btn-secondary-centered" style="padding:10px 20px; margin-right:10px;" onclick="loadAndRenderGanttTimeline(selectedCategory)">🔙 단일 날짜로 돌아가기</button>`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        container.innerHTML = html;
+    }
+    
     document.addEventListener('DOMContentLoaded', () => loadAndRenderGanttTimeline(selectedCategory));
     document.getElementById('statusDate')?.addEventListener('change', () => loadAndRenderGanttTimeline(selectedCategory));
     </script>
@@ -1068,6 +1186,118 @@
         .current-datetime {
             text-align: center;
             margin-right: 0;
+        }
+    }
+    </style>
+    
+    <!-- 로고 슬라이더 -->
+    <div class="logo-slider-container">
+        <div class="logo-slider-track" id="logoSliderTrack">
+            <!-- 로고들이 JavaScript로 동적으로 추가됩니다 -->
+        </div>
+    </div>
+    
+    <script>
+    function initLogoSlider() {
+        const sliderTrack = document.getElementById('logoSliderTrack');
+        if (!sliderTrack) return;
+        
+        const logos = [
+            'logo1.png', 'logo2.png', 'logo3.png', 'logo4.png', 'logo5.png',
+            'logo6.png', 'logo7.png', 'logo8.png', 'logo9.png', 'logo10.png',
+            'logo11.png', 'logo12.png'
+        ];
+        
+        const logoHTML = [...logos, ...logos].map(logo => 
+            `<img src="${logo}" alt="로고" class="logo-item" loading="lazy">`
+        ).join('');
+        
+        sliderTrack.innerHTML = logoHTML;
+        
+        let position = 0;
+        const speed = 0.3;
+        
+        function animate() {
+            position -= speed;
+            sliderTrack.style.transform = `translateX(${position}px)`;
+            
+            const logoWidth = sliderTrack.children[0].offsetWidth + 20;
+            const resetPoint = logoWidth * logos.length;
+            
+            if (position <= -resetPoint) {
+                position = 0;
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        setTimeout(animate, 500);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initLogoSlider();
+    });
+    </script>
+    
+    <style>
+    .logo-slider-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: transparent;
+        overflow: hidden;
+        z-index: 1000;
+    }
+    
+    .logo-slider-track {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        gap: 20px;
+        white-space: nowrap;
+        will-change: transform;
+    }
+    
+    .logo-item {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+    
+    .logo-item:hover {
+        opacity: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .logo-slider-container {
+            height: 50px;
+        }
+        
+        .logo-item {
+            height: 40px;
+        }
+        
+        .logo-slider-track {
+            gap: 15px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .logo-slider-container {
+            height: 45px;
+        }
+        
+        .logo-item {
+            height: 35px;
+        }
+        
+        .logo-slider-track {
+            gap: 12px;
         }
     }
     </style>
