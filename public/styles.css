@@ -111,7 +111,7 @@ body {
     object-fit: contain;
     object-position: center center;
     display: block;
-    background-color: #f0f0f0;
+    background-color: transparent;
     opacity: 0;
     filter: brightness(1.1) contrast(1.05);
     transition: opacity 0.8s ease-in-out;
