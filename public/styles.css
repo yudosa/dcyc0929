@@ -2412,6 +2412,24 @@ h1 .highlight {
 .facility-card-ps {
     background: linear-gradient(135deg, #654ea3 0%, #eaafc8 100%);
 }
+
+.facility-card-ps .facility-name {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.facility-card-dance .facility-name {
+    letter-spacing: -0.1em;
+    font-size: 1.0rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+}
 .facility-card-karaoke {
     background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
 }
