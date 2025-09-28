@@ -222,6 +222,14 @@
             });
             
             if (response.ok) {
+                const result = await response.json();
+                // localStorage에 예약 정보 저장 (예약 완료 페이지에서 사용)
+                localStorage.setItem('reservationFacility', reservationData.facility);
+                localStorage.setItem('reservationDetail', reservationData.detail);
+                localStorage.setItem('reservationDate', reservationData.date);
+                localStorage.setItem('reservationTime', reservationData.start_time);
+                localStorage.setItem('reservationId', result.id);
+                
                 // 예약 완료 페이지로 이동
                 sessionStorage.setItem('reservationComplete', 'true');
                 sessionStorage.setItem('reservationData', JSON.stringify(reservationData));
