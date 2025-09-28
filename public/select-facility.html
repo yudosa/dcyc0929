@@ -41,17 +41,17 @@
                     <div class="facility-floor-card">
                         <div class="facility-floor-label">2F</div>
                         <div class="facility-card-row facility-card-row-multi">
-                            <div class="facility-card facility-card-nintendo" onclick="window.location.href='reservation-date.html'">
+                            <div class="facility-card facility-card-nintendo">
                                 <div class="facility-emoji">🎮</div>
                                 <div class="facility-name">닌텐도</div>
                             </div>
-                            <div class="facility-card facility-card-ps" onclick="window.location.href='reservation-date.html'">
+                            <div class="facility-card facility-card-ps">
                                 <div class="facility-emoji">🕹️</div>
                                 <div class="facility-name">플레이<br>스테이션</div>
                             </div>
                         </div>
                         <div class="facility-card-row facility-card-row-single">
-                            <div class="facility-card facility-card-karaoke" onclick="window.location.href='reservation-date.html'">
+                            <div class="facility-card facility-card-karaoke">
                                 <div class="facility-emoji">🎤</div>
                                 <div class="facility-name">노래방</div>
                             </div>
@@ -60,13 +60,13 @@
                     <div class="facility-floor-card">
                         <div class="facility-floor-label">3F</div>
                         <div class="facility-card-row facility-card-row-single">
-                            <div class="facility-card facility-card-dance" onclick="window.location.href='reservation-date.html'">
+                            <div class="facility-card facility-card-dance">
                                 <div class="facility-emoji">💃</div>
                                 <div class="facility-name">댄스연습실</div>
                             </div>
                         </div>
                         <div class="facility-card-row facility-card-row-single">
-                            <div class="facility-card facility-card-meeting" onclick="window.location.href='reservation-date.html'">
+                            <div class="facility-card facility-card-meeting">
                                 <div class="facility-emoji">🏢</div>
                                 <div class="facility-name">소회의실</div>
                             </div>
@@ -95,7 +95,12 @@
     // 시설 카드 클릭 시 시설명 저장 (자율이용 제외)
     document.querySelectorAll('.facility-card:not(#autonomousCard)').forEach(card => {
         card.addEventListener('click', function() {
-            let name = card.querySelector('.facility-name').textContent.trim();
+            let name = card.querySelector('.facility-name').textContent.trim().replace(/\s+/g, ' ');
+            // 플레이스테이션 텍스트 정규화
+            if (name.includes('플레이') && name.includes('스테이션')) {
+                name = '플레이스테이션';
+            }
+            console.log('선택된 시설:', name);
             sessionStorage.setItem('selectedFacility', name);
             window.location.href = 'reservation-date.html';
         });
@@ -203,7 +208,7 @@
             detail: selectedOption,
             date: new Date().toISOString().split('T')[0], // 오늘 날짜
             start_time: '09:00',
-            end_time: '18:00'
+            end_time: '18:00',
             status: 'active'
         };
         
