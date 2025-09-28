@@ -576,10 +576,19 @@
         // 시간 선택 초기화
         selectedTime = null;
         
+        // 댄스연습실과 소회의실에 대한 안내 텍스트
+        const guidanceText = (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') 
+            ? `<div style="background: #e8f5e8; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; color: #2d5a2d; text-align: center; line-height: 1.4;">
+                💡 <strong>1시간 예약:</strong> 원하는 시간 1개 선택<br>
+                💡 <strong>2시간 연속 예약:</strong> 연속된 시간 2개 선택 (예: 14시, 15시)
+            </div>`
+            : '';
+
         block.innerHTML = `
             <div class="time-header">
                 <h3 style="color: #3498db; margin: 0;">선택된 날짜: ${selectedDate}</h3>
             </div>
+            ${guidanceText}
             <div class="time-btn-group" id="timeBtnGroup">
                 ${getTimeBtnsHTML()}
             </div>
@@ -592,7 +601,10 @@
                 // 이벤트 위임 방식으로 변경
                 btnGroup.addEventListener('click', function(e) {
                     const btn = e.target.closest('.time-btn');
-                    if (!btn || btn.classList.contains('disabled')) return;
+                    if (!btn || btn.classList.contains('disabled') || btn.disabled) {
+                        console.log('disabled된 시간대 클릭 차단:', btn?.getAttribute('data-time'));
+                        return;
+                    }
                     
                     e.preventDefault();
                     e.stopPropagation();
@@ -610,8 +622,9 @@
                             btn.classList.add('selected');
                             console.log('첫 번째 시간 선택:', selectedTime);
                         } else if (selectedTime === clickedTime) {
-                            // 같은 시간을 다시 클릭하면 선택 해제 (1시간 예약으로 확정)
+                            // 같은 시간을 다시 클릭하면 1시간 예약으로 확정 (변경 없음)
                             console.log('같은 시간 재클릭, 1시간 예약 확정:', selectedTime);
+                            // 이미 선택된 상태이므로 추가 동작 없음
                         } else if (selectedTime.includes(',')) {
                             // 이미 2시간이 선택된 경우, 새로운 선택으로 교체
                             document.querySelectorAll('.time-btn.selected').forEach(b => b.classList.remove('selected'));
@@ -718,19 +731,11 @@
                         const endHour = parseInt(reservation.end_time.split(':')[0]);
                         const duration = endHour - startHour;
                         
-                        if (duration === 2 && (reservation.facility === '댄스연습실' || reservation.facility === '소회의실')) {
-                            // 2시간 연속 예약인 경우 시작 시간만 예약된 것으로 표시
-                            const timeStr = `${startHour.toString().padStart(2, '0')}:00`;
-                            if (!reservationData[key][reservation.date].includes(timeStr)) {
-                                reservationData[key][reservation.date].push(timeStr);
-                            }
-                        } else {
-                            // 1시간 단위 예약
+                        // 1시간 또는 2시간 모든 예약에 대해 동일하게 처리
                         for (let h = startHour; h < endHour; h++) {
                             const timeStr = `${h.toString().padStart(2, '0')}:00`;
                             if (!reservationData[key][reservation.date].includes(timeStr)) {
                                 reservationData[key][reservation.date].push(timeStr);
-                                }
                             }
                         }
                     }
@@ -839,6 +844,39 @@
                 console.log('댄스/소회의실 시간 검증:', selectedTime);
             }
             
+            // 선택한 시간이 예약 가능한지 최종 체크
+            const reservedTimes = getReservedTimes(selectedFacility, detailValue, selectedDate);
+            if (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') {
+                if (selectedTime.includes(',')) {
+                    // 2시간 연속 예약의 경우 시작시간부터 종료시간까지 모든 시간 체크
+                    const times = selectedTime.split(',').sort();
+                    const startTime = times[0];
+                    const [startHour] = startTime.split(':').map(Number);
+                    const checkTimes = [
+                        `${startHour.toString().padStart(2, '0')}:00`,
+                        `${(startHour + 1).toString().padStart(2, '0')}:00`
+                    ];
+                    for (let time of checkTimes) {
+                        if (reservedTimes.includes(time)) {
+                            showModal(`${time} 시간대는 이미 예약되어 있습니다. 2시간 연속 예약이 불가능합니다.`);
+                            return;
+                        }
+                    }
+                } else {
+                    // 1시간 예약의 경우
+                    if (reservedTimes.includes(selectedTime)) {
+                        showModal(`${selectedTime} 시간대는 이미 예약되어 있습니다. 다른 시간을 선택해주세요.`);
+                        return;
+                    }
+                }
+            } else {
+                // 일반 시설의 경우
+                if (reservedTimes.includes(selectedTime)) {
+                    showModal(`${selectedTime} 시간대는 이미 예약되어 있습니다. 다른 시간을 선택해주세요.`);
+                    return;
+                }
+            }
+            
             // 예약 데이터 준비
             const userName = localStorage.getItem('userName') || '고객';
             const userPhone = localStorage.getItem('userPhone') || '';
@@ -847,8 +885,19 @@
             const userAge = localStorage.getItem('userAge') || '';
             
             // 댄스연습실과 소회의실의 경우 시작 시간 계산 (1시간 또는 2시간 선택에 따라)
-            const startTime = selectedFacility === '댄스연습실' || selectedFacility === '소회의실' ? 
-                (selectedTime.includes(',') ? selectedTime.split(',')[0] : selectedTime) : selectedTime;
+            let startTime = selectedTime;
+            if (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') {
+                if (selectedTime.includes(',')) {
+                    // 2시간 연속 선택 시 첫 번째 시간이 시작시간
+                    const times = selectedTime.split(',').sort(); // 시간 순으로 정렬
+                    startTime = times[0];
+                } else {
+                    // 1시간 선택 시
+                    startTime = selectedTime;
+                }
+            } else {
+                startTime = selectedTime;
+            }
             
             const reservationData = {
                 name: userName,
@@ -876,11 +925,12 @@
         if (selectedFacility && (selectedFacility === '댄스연습실' || selectedFacility === '소회의실')) {
             // 댄스연습실과 소회의실: 선택된 시간에 따라 계산
             if (timeSelection.includes(',')) {
-                // 두 시간이 선택된 경우 (2시간 예약), 두 번째 시간 + 1시간
-                const times = timeSelection.split(',');
-                const lastTime = times[times.length - 1];
-                const [hour, minute] = lastTime.split(':').map(Number);
-                return `${(hour + 1).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                // 두 시간이 선택된 경우 (2시간 연속 예약)
+                const times = timeSelection.split(',').sort(); // 시간 순으로 정렬
+                const startTime = times[0];
+                const [hour, minute] = startTime.split(':').map(Number);
+                // 시작시간 + 2시간 = 종료시간
+                return `${(hour + 2).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
             } else {
                 // 한 시간만 선택된 경우 (1시간 예약), 1시간 후
                 const [hour, minute] = timeSelection.split(':').map(Number);
@@ -924,6 +974,7 @@
             if (data.facility === '댄스연습실' || data.facility === '소회의실' || data.facility === '다목적실') {
                 data.detail = '-';
             }
+            console.log('예약 요청 데이터:', data);
             const response = await fetch('/api/reservations', {
                 method: 'POST',
                 headers: {
@@ -932,8 +983,15 @@
                 body: JSON.stringify(data)
             });
             const result = await response.json();
+            console.log('서버 응답:', result);
             if (!response.ok) {
-                showModal(result.error || '예약 생성에 실패했습니다.');
+                console.error('예약 실패 상세:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    error: result.error,
+                    data: data
+                });
+                showModal(result.error || `예약 생성에 실패했습니다 (${response.status})`);
                 return;
             }
             localStorage.setItem('reservationFacility', data.facility);

@@ -209,10 +209,12 @@
             date: new Date().toISOString().split('T')[0], // 오늘 날짜
             start_time: '09:00',
             end_time: '18:00',
-            status: 'active'
+            purpose: '',
+            agreedPersonalInfo: sessionStorage.getItem('agreedPersonalInfo') === 'y' ? '동의' : '미동의'
         };
         
         try {
+            console.log('자율이용 예약 데이터 전송:', reservationData);
             const response = await fetch('/api/reservations', {
                 method: 'POST',
                 headers: {
@@ -235,7 +237,10 @@
                 sessionStorage.setItem('reservationData', JSON.stringify(reservationData));
                 window.location.href = 'reservation-complete.html';
             } else {
-                showModal('예약 생성 중 오류가 발생했습니다.');
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error || `예약 생성에 실패했습니다 (${response.status})`;
+                console.error('서버 오류:', errorData);
+                showModal(errorMessage);
             }
         } catch (error) {
             console.error('예약 생성 오류:', error);
