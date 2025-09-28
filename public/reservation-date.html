@@ -959,11 +959,12 @@
             facility: '자율이용',
             detail: selectedDetail,
             date: new Date().toISOString().split('T')[0], // 오늘 날짜
-            start_time: '09:00',
-            end_time: '18:00',
+            start_time: '00:00',
+            end_time: '00:01',
             status: 'active'
         };
         
+        console.log('자율이용 예약 생성 시작:', reservationData);
         createReservation(reservationData);
     }
     
