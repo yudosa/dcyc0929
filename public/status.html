@@ -425,10 +425,11 @@
         { name: '소회의실', id: 'meeting' },
         { name: '닌텐도', id: 'nintendo', details: ['닌텐도1','닌텐도2','닌텐도3'] },
         { name: '플레이스테이션', id: 'ps', details: ['플레이스테이션1','플레이스테이션2'] },
-        { name: '노래방', id: 'karaoke', details: ['노래방1','노래방2'] }
+        { name: '노래방', id: 'karaoke', details: ['노래방1','노래방2'] },
+        { name: '자율이용', id: 'autonomous', details: ['보드게임', '프로그램 참여', '동아리 활동', '학습 활동', '기타 활동'] }
     ];
     // 샘플 카테고리(필터)
-    const categories = ['전체', '댄스연습실', '소회의실', '닌텐도', '플레이스테이션', '노래방'];
+    const categories = ['전체', '댄스연습실', '소회의실', '닌텐도', '플레이스테이션', '노래방', '자율이용'];
     // 샘플 예약 데이터(detail 필드 포함)
     async function getSampleReservations(date) {
         if (!date) {
@@ -515,6 +516,8 @@
     function renderGanttTimeline(reservations, spaces, startHour = 9, endHour = 20) {
         const container = document.getElementById('ganttTimelineWrap');
         if (!container) return;
+        
+        // 모든 시설을 타임라인에 표시
         
         // 선택된 날짜가 일요일인지 확인
         const selectedDate = document.getElementById('statusDate')?.value || getTodayStr();
