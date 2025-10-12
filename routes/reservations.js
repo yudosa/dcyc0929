@@ -94,8 +94,20 @@ router.post('/', async (req, res) => {
         });
         
         if (conflictingReservation) {
-            console.log('중복 예약 발견:', conflictingReservation);
-            return res.status(400).json({ error: '해당 시간에 이미 예약이 있습니다.' });
+            console.log('중복 예약 발견:', {
+                conflictingId: conflictingReservation.id,
+                conflictingReservation: conflictingReservation,
+                newReservationData: { facility, detail, date, start_time, end_time, name }
+            });
+            return res.status(400).json({ 
+                error: '해당 시간에 이미 예약이 있습니다.',
+                conflictingReservation: {
+                    id: conflictingReservation.id,
+                    name: conflictingReservation.name,
+                    start_time: conflictingReservation.start_time,
+                    end_time: conflictingReservation.end_time
+                }
+            });
         }
         
         // 예약 생성

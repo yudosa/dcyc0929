@@ -64,7 +64,7 @@
                         <div class="facility-card-row facility-card-row-multi">
                             <div class="facility-card facility-card-reading">
                                 <div class="facility-emoji">📚</div>
-                                <div class="facility-name">북쉼터</div>
+                                <div class="facility-name">북 카페</div>
                             </div>
                             <div class="facility-card facility-card-boardgame">
                                 <div class="facility-emoji">🎲</div>
@@ -83,7 +83,7 @@
 
 
     <script>
-    // 시설 카드 클릭 시 시설명 저장 (북쉼터와 보드게임 포함)
+    // 시설 카드 클릭 시 시설명 저장 (북 카페와 보드게임 포함)
     document.querySelectorAll('.facility-card').forEach(card => {
         card.addEventListener('click', function() {
             let name = card.querySelector('.facility-name').textContent.trim().replace(/\s+/g, ' ');
@@ -93,8 +93,8 @@
             }
             console.log('선택된 시설:', name);
             
-            // 북쉼터와 보드게임은 바로 예약 완료 처리
-            if (name === '북쉼터' || name === '보드게임') {
+            // 북 카페와 보드게임은 바로 예약 완료 처리
+            if (name === '북 카페' || name === '보드게임') {
                 sessionStorage.setItem('selectedFacility', name);
                 sessionStorage.setItem('selectedDetail', '-');
                 sessionStorage.setItem('instantReservation', 'true'); // 즉시 예약 플래그
@@ -106,7 +106,7 @@
         });
     });
 
-    // 즉시 예약 생성 함수 (북쉼터, 보드게임용)
+    // 즉시 예약 생성 함수 (북 카페, 보드게임용) - 실시간 중복 체크 포함
     window.createInstantReservation = async function(facilityName) {
         const userName = localStorage.getItem('userName') || '고객';
         const userPhone = localStorage.getItem('userPhone') || '';
@@ -128,6 +128,27 @@
         };
         
         try {
+            // 예약 요청 전 최신 데이터로 한 번 더 중복 체크
+            console.log('즉시 예약 전 최종 중복 체크 시작...');
+            const dateCheckResponse = await fetch(`/api/reservations/date/${reservationData.date}`);
+            if (dateCheckResponse.ok) {
+                const latestReservations = await dateCheckResponse.json();
+                const conflictingReservation = latestReservations.find(reservation => {
+                    if (reservation.status !== 'active') return false;
+                    if (reservation.facility !== reservationData.facility || reservation.detail !== reservationData.detail) {
+                        return false;
+                    }
+                    // 즉시 예약의 경우 같은 시설의 활성 예약이 있는지만 체크
+                    return true;
+                });
+                
+                if (conflictingReservation) {
+                    console.log('최종 체크에서 중복 예약 발견:', conflictingReservation);
+                    showModal('죄송합니다. 방금 다른 분이 해당 시설을 예약하셨습니다.\n잠시 후 다시 시도해 주세요.');
+                    return;
+                }
+            }
+            
             console.log('즉시 예약 데이터 전송:', reservationData);
             const response = await fetch('/api/reservations', {
                 method: 'POST',
@@ -152,7 +173,13 @@
                 window.location.href = 'reservation-complete.html';
             } else {
                 const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error || `예약 생성에 실패했습니다 (${response.status})`;
+                let errorMessage = errorData.error || `예약 생성에 실패했습니다 (${response.status})`;
+                
+                // 중복 예약 에러의 경우 더 친화적인 메시지 표시
+                if (errorMessage.includes('해당 시간에 이미 예약이 있습니다')) {
+                    errorMessage = '죄송합니다. 방금 다른 분이 해당 시설을 예약하셨습니다.\n잠시 후 다시 시도해 주세요.';
+                }
+                
                 console.error('서버 오류:', errorData);
                 showModal(errorMessage);
             }
