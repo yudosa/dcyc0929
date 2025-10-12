@@ -474,11 +474,11 @@
             return []; // 오류 시 빈 배열 반환
         }
     }
-    // 1시간 단위 헤더 생성 (일요일은 18시까지)
-    function getHourSlots(startHour = 9, endHour = 20, isSunday = false) {
+    // 1시간 단위 헤더 생성 (월요일은 휴관)
+    function getHourSlots(startHour = 9, endHour = 20, isMonday = false) {
         const slots = [];
-        const actualEndHour = isSunday ? 18 : endHour;
-        for (let h = startHour; h < actualEndHour; h++) {
+        if (isMonday) return []; // 월요일은 휴관
+        for (let h = startHour; h < endHour; h++) {
             slots.push(`${String(h).padStart(2, '0')}:00`);
         }
         return slots;
@@ -1032,10 +1032,10 @@
         let reservations = await response.json();
         let filteredSpaces = (category === '전체' || !category) ? spaces : spaces.filter(s => s.name === category);
         
-        // 선택된 날짜가 일요일인지 확인하여 운영시간 조정
+        // 선택된 날짜가 월요일인지 확인하여 운영시간 조정
         const dateObj = new Date(date);
-        const isSunday = dateObj.getDay() === 0;
-        const endHour = isSunday ? 18 : 20;
+        const isMonday = dateObj.getDay() === 1;
+        const endHour = isMonday ? 0 : 20; // 월요일은 휴관
         
         // status 관계없이 모든 예약 표시
         renderGanttTimeline(reservations, filteredSpaces, 9, endHour);
