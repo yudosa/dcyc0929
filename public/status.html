@@ -427,15 +427,17 @@
         { name: '컴퓨터', id: 'computer' },
         { name: '북 카페', id: 'reading' },
         { name: '보드게임', id: 'boardgame' },
+        { name: '기타 이용', id: 'other' },
         { name: '닌텐도', id: 'nintendo', details: ['닌텐도1','닌텐도2','닌텐도3'] },
         { name: '플레이스테이션', id: 'ps', details: ['플레이스테이션1','플레이스테이션2'] },
         { name: '노래방', id: 'karaoke', details: ['노래방1','노래방2'] },
         { name: '컴퓨터', id: 'computer', details: ['컴퓨터1','컴퓨터2','Mac1','Mac2'] },
         { name: '북 카페', id: 'reading', details: ['-'] },
-        { name: '보드게임', id: 'boardgame', details: ['-'] }
+        { name: '보드게임', id: 'boardgame', details: ['-'] },
+        { name: '기타 이용', id: 'other', details: ['-'] }
     ];
     // 샘플 카테고리(필터)
-    const categories = ['전체', '닌텐도', '플레이스테이션', '노래방', '컴퓨터', '북 카페', '보드게임'];
+    const categories = ['전체', '닌텐도', '플레이스테이션', '노래방', '컴퓨터', '북 카페', '보드게임', '기타 이용'];
     // 샘플 예약 데이터(detail 필드 포함)
     async function getSampleReservations(date) {
         if (!date) {

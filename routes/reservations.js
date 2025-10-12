@@ -79,35 +79,40 @@ router.post('/', async (req, res) => {
     }
     
     try {
-        // 중복 예약 확인
-        const existingReservations = await realtimeDb.getReservationsByDate(date);
-        const conflictingReservation = existingReservations.find(reservation => {
-            if (reservation.status !== 'active') return false; // active만 중복 체크
-            if (reservation.facility !== facility || reservation.detail !== (detail || '-')) {
-                return false;
-            }
-            const reservationStart = moment(reservation.start_time, 'HH:mm');
-            const reservationEnd = moment(reservation.end_time, 'HH:mm');
-            const newStart = moment(start_time, 'HH:mm');
-            const newEnd = moment(end_time, 'HH:mm');
-            return (newStart.isBefore(reservationEnd) && newEnd.isAfter(reservationStart));
-        });
-        
-        if (conflictingReservation) {
-            console.log('중복 예약 발견:', {
-                conflictingId: conflictingReservation.id,
-                conflictingReservation: conflictingReservation,
-                newReservationData: { facility, detail, date, start_time, end_time, name }
-            });
-            return res.status(400).json({ 
-                error: '해당 시간에 이미 예약이 있습니다.',
-                conflictingReservation: {
-                    id: conflictingReservation.id,
-                    name: conflictingReservation.name,
-                    start_time: conflictingReservation.start_time,
-                    end_time: conflictingReservation.end_time
+        // 북카페, 보드게임, 기타 이용은 자유 이용 시설이므로 중복 예약 확인을 건너뜀
+        if (facility === '북 카페' || facility === '보드게임' || facility === '기타 이용') {
+            console.log('자유 이용 시설이므로 중복 체크 생략:', facility);
+        } else {
+            // 중복 예약 확인 (다른 시설들만)
+            const existingReservations = await realtimeDb.getReservationsByDate(date);
+            const conflictingReservation = existingReservations.find(reservation => {
+                if (reservation.status !== 'active') return false; // active만 중복 체크
+                if (reservation.facility !== facility || reservation.detail !== (detail || '-')) {
+                    return false;
                 }
+                const reservationStart = moment(reservation.start_time, 'HH:mm');
+                const reservationEnd = moment(reservation.end_time, 'HH:mm');
+                const newStart = moment(start_time, 'HH:mm');
+                const newEnd = moment(end_time, 'HH:mm');
+                return (newStart.isBefore(reservationEnd) && newEnd.isAfter(reservationStart));
             });
+            
+            if (conflictingReservation) {
+                console.log('중복 예약 발견:', {
+                    conflictingId: conflictingReservation.id,
+                    conflictingReservation: conflictingReservation,
+                    newReservationData: { facility, detail, date, start_time, end_time, name }
+                });
+                return res.status(400).json({ 
+                    error: '해당 시간에 이미 예약이 있습니다.',
+                    conflictingReservation: {
+                        id: conflictingReservation.id,
+                        name: conflictingReservation.name,
+                        start_time: conflictingReservation.start_time,
+                        end_time: conflictingReservation.end_time
+                    }
+                });
+            }
         }
         
         // 예약 생성

@@ -71,6 +71,12 @@
                                 <div class="facility-name">보드게임</div>
                             </div>
                         </div>
+                        <div class="facility-card-row facility-card-row-single">
+                            <div class="facility-card facility-card-other">
+                                <div class="facility-emoji">📝</div>
+                                <div class="facility-name">기타 이용</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-actions-centered" style="display:flex; flex-direction:row; gap:8px;">
@@ -93,8 +99,8 @@
             }
             console.log('선택된 시설:', name);
             
-            // 북 카페와 보드게임은 바로 예약 완료 처리
-            if (name === '북 카페' || name === '보드게임') {
+            // 북 카페, 보드게임, 기타 이용은 바로 예약 완료 처리
+            if (name === '북 카페' || name === '보드게임' || name === '기타 이용') {
                 sessionStorage.setItem('selectedFacility', name);
                 sessionStorage.setItem('selectedDetail', '-');
                 sessionStorage.setItem('instantReservation', 'true'); // 즉시 예약 플래그
@@ -106,7 +112,7 @@
         });
     });
 
-    // 즉시 예약 생성 함수 (북 카페, 보드게임용) - 실시간 중복 체크 포함
+    // 즉시 예약 생성 함수 (북 카페, 보드게임, 기타 이용용) - 실시간 중복 체크 포함
     window.createInstantReservation = async function(facilityName) {
         const userName = localStorage.getItem('userName') || '고객';
         const userPhone = localStorage.getItem('userPhone') || '';
@@ -128,24 +134,29 @@
         };
         
         try {
-            // 예약 요청 전 최신 데이터로 한 번 더 중복 체크
-            console.log('즉시 예약 전 최종 중복 체크 시작...');
-            const dateCheckResponse = await fetch(`/api/reservations/date/${reservationData.date}`);
-            if (dateCheckResponse.ok) {
-                const latestReservations = await dateCheckResponse.json();
-                const conflictingReservation = latestReservations.find(reservation => {
-                    if (reservation.status !== 'active') return false;
-                    if (reservation.facility !== reservationData.facility || reservation.detail !== reservationData.detail) {
-                        return false;
+            // 북카페, 보드게임, 기타 이용은 자유 이용 시설이므로 중복 체크를 하지 않음
+            if (facilityName === '북 카페' || facilityName === '보드게임' || facilityName === '기타 이용') {
+                console.log('자유 이용 시설이므로 중복 체크 생략:', facilityName);
+            } else {
+                // 다른 즉시 예약 시설의 경우에만 중복 체크 수행
+                console.log('즉시 예약 전 최종 중복 체크 시작...');
+                const dateCheckResponse = await fetch(`/api/reservations/date/${reservationData.date}`);
+                if (dateCheckResponse.ok) {
+                    const latestReservations = await dateCheckResponse.json();
+                    const conflictingReservation = latestReservations.find(reservation => {
+                        if (reservation.status !== 'active') return false;
+                        if (reservation.facility !== reservationData.facility || reservation.detail !== reservationData.detail) {
+                            return false;
+                        }
+                        // 즉시 예약의 경우 같은 시설의 활성 예약이 있는지만 체크
+                        return true;
+                    });
+                    
+                    if (conflictingReservation) {
+                        console.log('최종 체크에서 중복 예약 발견:', conflictingReservation);
+                        showModal('죄송합니다. 방금 다른 분이 해당 시설을 예약하셨습니다.\n잠시 후 다시 시도해 주세요.');
+                        return;
                     }
-                    // 즉시 예약의 경우 같은 시설의 활성 예약이 있는지만 체크
-                    return true;
-                });
-                
-                if (conflictingReservation) {
-                    console.log('최종 체크에서 중복 예약 발견:', conflictingReservation);
-                    showModal('죄송합니다. 방금 다른 분이 해당 시설을 예약하셨습니다.\n잠시 후 다시 시도해 주세요.');
-                    return;
                 }
             }
             
