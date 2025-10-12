@@ -421,15 +421,18 @@
     <script>
     // 샘플 공간/시설 목록 (세부시설 포함)
     const spaces = [
-        { name: '댄스연습실', id: 'dance' },
-        { name: '소회의실', id: 'meeting' },
+        { name: '닌텐도', id: 'nintendo' },
+        { name: '플레이스테이션', id: 'playstation' },
+        { name: '노래방', id: 'karaoke' },
+        { name: '컴퓨터', id: 'computer' },
         { name: '닌텐도', id: 'nintendo', details: ['닌텐도1','닌텐도2','닌텐도3'] },
         { name: '플레이스테이션', id: 'ps', details: ['플레이스테이션1','플레이스테이션2'] },
         { name: '노래방', id: 'karaoke', details: ['노래방1','노래방2'] },
+        { name: '컴퓨터', id: 'computer', details: ['컴퓨터1','컴퓨터2','Mac1','Mac2'] },
         { name: '자율이용', id: 'autonomous', details: ['보드게임', '프로그램 참여', '동아리 활동', '학습 활동', '기타 활동'] }
     ];
     // 샘플 카테고리(필터)
-    const categories = ['전체', '댄스연습실', '소회의실', '닌텐도', '플레이스테이션', '노래방', '자율이용'];
+    const categories = ['전체', '닌텐도', '플레이스테이션', '노래방', '컴퓨터', '자율이용'];
     // 샘플 예약 데이터(detail 필드 포함)
     async function getSampleReservations(date) {
         if (!date) {

@@ -382,7 +382,7 @@
                 detail = detailSelect.value.replace(/\s+/g, '');
             }
         }
-        const detailKey = (facility === '댄스연습실' || facility === '다목적실') ? '-' : detail;
+        const detailKey = (facility === '다목적실') ? '-' : detail;
         const key = facility + '||' + (detailKey || '-');
         console.log('getReservedTimes - key:', key);
         if (!reservationData || Object.keys(reservationData).length === 0) {
@@ -420,7 +420,7 @@
             return;
         }
         
-        if (facilityName === '댄스연습실' || facilityName === '소회의실' || facilityName === '보드게임') {
+        if (facilityName === '보드게임') {
             detailCard.style.display = 'none';
             selectedFacility = facilityName;
             selectedDetail = '-';
@@ -442,6 +442,13 @@
                 options = [
                     {v:'노래방1', t:'🎤 노래방1'},
                     {v:'노래방2', t:'🎤 노래방2'}
+                ];
+            } else if (facilityName === '컴퓨터') {
+                options = [
+                    {v:'컴퓨터1', t:'💻 컴퓨터1'},
+                    {v:'컴퓨터2', t:'💻 컴퓨터2'},
+                    {v:'Mac1', t:'🍎 Mac1'},
+                    {v:'Mac2', t:'🍎 Mac2'}
                 ];
             }
             detailSelect.innerHTML = options.map(o => `<option value="${o.v}">${o.t}</option>`).join('');
@@ -576,13 +583,8 @@
         // 시간 선택 초기화
         selectedTime = null;
         
-        // 댄스연습실과 소회의실에 대한 안내 텍스트
-        const guidanceText = (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') 
-            ? `<div style="background: #e8f5e8; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; color: #2d5a2d; text-align: center; line-height: 1.4;">
-                💡 <strong>1시간 예약:</strong> 원하는 시간 1개 선택<br>
-                💡 <strong>2시간 연속 예약:</strong> 연속된 시간 2개 선택 (예: 14시, 15시)
-            </div>`
-            : '';
+        // 시간 선택 안내 텍스트
+        const guidanceText = '';
 
         block.innerHTML = `
             <div class="time-header">
@@ -612,57 +614,11 @@
                     const clickedTime = btn.getAttribute('data-time');
                     console.log('시간 버튼 클릭됨:', clickedTime, '현재 선택된 시간:', selectedTime);
                     
-                    // 댄스연습실과 소회의실의 경우 1-2시간 선택 가능
-                    if (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') {
-                        console.log('댄스/소회의실 시간 선택:', clickedTime, '현재 선택:', selectedTime);
-                        
-                        if (!selectedTime || selectedTime === '') {
-                            // 첫 번째 시간 선택
-                            selectedTime = clickedTime;
-                            btn.classList.add('selected');
-                            console.log('첫 번째 시간 선택:', selectedTime);
-                        } else if (selectedTime === clickedTime) {
-                            // 같은 시간을 다시 클릭하면 1시간 예약으로 확정 (변경 없음)
-                            console.log('같은 시간 재클릭, 1시간 예약 확정:', selectedTime);
-                            // 이미 선택된 상태이므로 추가 동작 없음
-                        } else if (selectedTime.includes(',')) {
-                            // 이미 2시간이 선택된 경우, 새로운 선택으로 교체
-                            document.querySelectorAll('.time-btn.selected').forEach(b => b.classList.remove('selected'));
-                            selectedTime = clickedTime;
-                            btn.classList.add('selected');
-                            console.log('새로운 시간으로 교체:', selectedTime);
-                        } else {
-                            // 두 번째 시간 선택 - 연속된 시간인지 확인
-                            const firstTime = parseInt(selectedTime.split(':')[0]);
-                            const secondTime = parseInt(clickedTime.split(':')[0]);
-                            
-                            console.log('두 번째 시간 선택 시도:', firstTime, '->', secondTime);
-                            
-                            if (secondTime === firstTime + 1) {
-                                // 연속된 다음 시간이면 2시간 예약
-                                selectedTime = selectedTime + ',' + clickedTime;
-                                btn.classList.add('selected');
-                                console.log('연속 시간 선택 완료 (2시간):', selectedTime);
-                            } else if (secondTime === firstTime - 1) {
-                                // 이전 시간을 선택한 경우 (예: 11시 선택 후 10시 선택)
-                                selectedTime = clickedTime + ',' + selectedTime;
-                                btn.classList.add('selected');
-                                console.log('이전 시간 선택 완료 (2시간):', selectedTime);
-                            } else {
-                                // 연속되지 않은 시간이면 첫 번째 선택 취소하고 새로 선택
-                                document.querySelectorAll('.time-btn.selected').forEach(b => b.classList.remove('selected'));
-                                selectedTime = clickedTime;
-                                btn.classList.add('selected');
-                                console.log('연속되지 않은 시간, 새로 선택:', selectedTime);
-                            }
-                        }
-                    } else {
-                        // 일반 시설은 1시간 단위 선택 (중복 선택 방지)
-                        document.querySelectorAll('.time-btn.selected').forEach(b => b.classList.remove('selected'));
-                        selectedTime = clickedTime;
-                        btn.classList.add('selected');
-                        console.log('일반 시설 시간 선택:', selectedTime);
-                    }
+                    // 모든 시설은 1시간 단위 선택 (중복 선택 방지)
+                    document.querySelectorAll('.time-btn.selected').forEach(b => b.classList.remove('selected'));
+                    selectedTime = clickedTime;
+                    btn.classList.add('selected');
+                    console.log('시간 선택:', selectedTime);
                     
                     // UI 갱신 (재귀 호출 방지)
                     updateTimeSelectUI();
@@ -708,7 +664,7 @@
             reservationData = {};
             reservations.forEach((reservation, index) => {
                 // detail 없는 시설은 '-'로 통일
-                const detailKey = (reservation.facility === '댄스연습실' || reservation.facility === '다목적실') ? '-' : reservation.detail;
+                const detailKey = (reservation.facility === '다목적실') ? '-' : reservation.detail;
                 const key = reservation.facility + '||' + (detailKey || '-');
                 if (!reservationData[key]) reservationData[key] = {};
                 if (!reservationData[key][reservation.date]) reservationData[key][reservation.date] = [];
@@ -726,7 +682,7 @@
                             if (m === 60) { m = 0; h += 1; }
                         }
                     } else {
-                        // 1시간 단위 또는 2시간 단위 (댄스연습실, 소회의실)
+                        // 1시간 단위 예약 처리
                         const startHour = parseInt(reservation.start_time.split(':')[0]);
                         const endHour = parseInt(reservation.end_time.split(':')[0]);
                         const duration = endHour - startHour;
@@ -751,7 +707,7 @@
     function getTimeSlotsForFacility(facility, detail, dayOfWeek) {
         const timeSlots = getTimeSlots(dayOfWeek);
         
-        // 모든 시설은 1시간 단위로 표시 (댄스연습실과 소회의실도 동일)
+        // 모든 시설은 1시간 단위로 표시
         return timeSlots;
     }
 
@@ -816,8 +772,8 @@
             console.log('시간:', selectedTime);
             
             // 유효성 검사
-            let needDetail = selectedFacility !== '댄스연습실';
-            let detailValue = needDetail ? selectedDetail : null;
+            let needDetail = true;
+            let detailValue = selectedDetail;
             // detailValue가 상위 카테고리명일 경우 detailSelect.value로 강제, 공백 제거
             if (needDetail && (!detailValue || detailValue === selectedFacility)) {
                 detailValue = detailSelect.value.replace(/\s+/g, '');
@@ -838,43 +794,11 @@
                 return;
             }
             
-            // 댄스연습실과 소회의실의 경우 1-2시간 선택 확인 (1시간 단독 선택도 허용)
-            if (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') {
-                // 1시간 또는 2시간 선택 모두 허용
-                console.log('댄스/소회의실 시간 검증:', selectedTime);
-            }
-            
             // 선택한 시간이 예약 가능한지 최종 체크
             const reservedTimes = getReservedTimes(selectedFacility, detailValue, selectedDate);
-            if (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') {
-                if (selectedTime.includes(',')) {
-                    // 2시간 연속 예약의 경우 시작시간부터 종료시간까지 모든 시간 체크
-                    const times = selectedTime.split(',').sort();
-                    const startTime = times[0];
-                    const [startHour] = startTime.split(':').map(Number);
-                    const checkTimes = [
-                        `${startHour.toString().padStart(2, '0')}:00`,
-                        `${(startHour + 1).toString().padStart(2, '0')}:00`
-                    ];
-                    for (let time of checkTimes) {
-                        if (reservedTimes.includes(time)) {
-                            showModal(`${time} 시간대는 이미 예약되어 있습니다. 2시간 연속 예약이 불가능합니다.`);
-                            return;
-                        }
-                    }
-                } else {
-                    // 1시간 예약의 경우
-                    if (reservedTimes.includes(selectedTime)) {
-                        showModal(`${selectedTime} 시간대는 이미 예약되어 있습니다. 다른 시간을 선택해주세요.`);
-                        return;
-                    }
-                }
-            } else {
-                // 일반 시설의 경우
-                if (reservedTimes.includes(selectedTime)) {
-                    showModal(`${selectedTime} 시간대는 이미 예약되어 있습니다. 다른 시간을 선택해주세요.`);
-                    return;
-                }
+            if (reservedTimes.includes(selectedTime)) {
+                showModal(`${selectedTime} 시간대는 이미 예약되어 있습니다. 다른 시간을 선택해주세요.`);
+                return;
             }
             
             // 예약 데이터 준비
@@ -884,20 +808,8 @@
             const userGender = localStorage.getItem('userGender') || '';
             const userAge = localStorage.getItem('userAge') || '';
             
-            // 댄스연습실과 소회의실의 경우 시작 시간 계산 (1시간 또는 2시간 선택에 따라)
+            // 시작 시간은 선택된 시간
             let startTime = selectedTime;
-            if (selectedFacility === '댄스연습실' || selectedFacility === '소회의실') {
-                if (selectedTime.includes(',')) {
-                    // 2시간 연속 선택 시 첫 번째 시간이 시작시간
-                    const times = selectedTime.split(',').sort(); // 시간 순으로 정렬
-                    startTime = times[0];
-                } else {
-                    // 1시간 선택 시
-                    startTime = selectedTime;
-                }
-            } else {
-                startTime = selectedTime;
-            }
             
             const reservationData = {
                 name: userName,
@@ -920,27 +832,10 @@
         };
     }
 
-    // 종료 시간 계산 (선택된 시간에 따라 동적으로 계산)
+    // 종료 시간 계산 (1시간 후)
     function getEndTime(timeSelection) {
-        if (selectedFacility && (selectedFacility === '댄스연습실' || selectedFacility === '소회의실')) {
-            // 댄스연습실과 소회의실: 선택된 시간에 따라 계산
-            if (timeSelection.includes(',')) {
-                // 두 시간이 선택된 경우 (2시간 연속 예약)
-                const times = timeSelection.split(',').sort(); // 시간 순으로 정렬
-                const startTime = times[0];
-                const [hour, minute] = startTime.split(':').map(Number);
-                // 시작시간 + 2시간 = 종료시간
-                return `${(hour + 2).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            } else {
-                // 한 시간만 선택된 경우 (1시간 예약), 1시간 후
-                const [hour, minute] = timeSelection.split(':').map(Number);
-                return `${(hour + 1).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            }
-        } else {
-            // 일반 시설은 1시간 후
-            const [hour, minute] = timeSelection.split(':').map(Number);
-            return `${(hour + 1).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        }
+        const [hour, minute] = timeSelection.split(':').map(Number);
+        return `${(hour + 1).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     }
     
     // 자율이용 예약 완료 처리
@@ -972,7 +867,7 @@
     async function createReservation(data) {
         try {
             // detail 없는 시설은 '-'로 통일
-            if (data.facility === '댄스연습실' || data.facility === '소회의실' || data.facility === '다목적실') {
+            if (data.facility === '다목적실') {
                 data.detail = '-';
             }
             console.log('예약 요청 데이터:', data);
