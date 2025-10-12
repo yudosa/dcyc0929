@@ -330,7 +330,7 @@
                     </div>
                         <div class="time-card" id="timeSelectBlock" style="display: block;">
                             <div class="time-header">
-                                <h3 style="color: #3498db; margin: 0;">시간 선택</h3>
+                                <h3 style="margin: 0;">시간 선택</h3>
                     </div>
                             <div class="time-btn-group" id="timeBtnGroup" style="display: flex; justify-content: center; align-items: center; height: 100%; min-height: 200px; grid-template-columns: none; gap: 0;">
                                 <div style="text-align: center; color: #666; font-size: 1.1rem; font-weight: 600; line-height: 1.6; display: flex; flex-direction: column; align-items: center;">
@@ -407,27 +407,23 @@
         // 제목 동적 변경
         const facilityTitle = document.getElementById('facilityTitle');
         if (facilityTitle && facilityName) {
-            facilityTitle.innerHTML = `<span style="color: #3498db;">${facilityName}</span> 시설 이용 신청`;
+            facilityTitle.innerHTML = `${facilityName} 시설 이용 신청`;
         }
         
-        // 자율이용인 경우 시간 선택 건너뛰기
-        if (sessionStorage.getItem('autonomousUse') === 'true') {
+        // 북쉼터와 보드게임인 경우 시간 선택 건너뛰기
+        if (sessionStorage.getItem('instantReservation') === 'true') {
             detailCard.style.display = 'none';
-            selectedFacility = '자율이용';
-            selectedDetail = sessionStorage.getItem('selectedDetail') || '기타';
-            // 자율이용은 시간 선택 없이 바로 예약 완료로 이동
+            selectedFacility = facilityName;
+            selectedDetail = '-';
+            // 즉시 예약은 시간 선택 없이 바로 예약 완료로 이동
             proceedToReservationComplete();
             return;
         }
         
-        if (facilityName === '보드게임') {
-            detailCard.style.display = 'none';
-            selectedFacility = facilityName;
-            selectedDetail = '-';
-        } else {
-            detailCard.style.display = 'block';
-            let options = '';
-            if (facilityName === '닌텐도') {
+        // 나머지 시설들은 세부선택 필요
+        detailCard.style.display = 'block';
+        let options = '';
+        if (facilityName === '닌텐도') {
                 options = [
                     {v:'닌텐도1', t:'🎮 닌텐도1'},
                     {v:'닌텐도2', t:'🎮 닌텐도2'},
@@ -456,7 +452,6 @@
             selectedFacility = facilityName;
             selectedDetail = detailSelect.value.replace(/\s+/g, '');
             console.log('setDetailOptions - selectedFacility:', selectedFacility, 'selectedDetail:', selectedDetail);
-        }
     }
 
     // 세부선택 버튼 클릭
@@ -588,7 +583,7 @@
 
         block.innerHTML = `
             <div class="time-header">
-                <h3 style="color: #3498db; margin: 0;">선택된 날짜: ${selectedDate}</h3>
+                <h3 style="margin: 0;">선택된 날짜: ${selectedDate}</h3>
             </div>
             ${guidanceText}
             <div class="time-btn-group" id="timeBtnGroup">
