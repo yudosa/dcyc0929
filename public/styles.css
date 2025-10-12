@@ -2433,6 +2433,15 @@ h1 .highlight {
 .facility-card-karaoke {
     background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
 }
+.facility-card-computer {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.facility-card-reading {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+.facility-card-boardgame {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
 .facility-card-board {
     background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
