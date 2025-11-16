@@ -12,6 +12,11 @@ const reservationRoutes = require('./routes/reservations');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 헬스 체크 엔드포인트 (제일 위쪽에 추가)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // 파이어베이스 Realtime Database 초기화 함수
 async function initializeFirebase() {
     try {
