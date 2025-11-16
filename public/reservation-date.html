@@ -803,7 +803,8 @@
                 const now = new Date();
                 const currentHour = now.getHours();
                 const currentMinute = now.getMinutes();
-                if (hour < currentHour || (hour === currentHour && minute <= currentMinute)) {
+                // 시작 시간이 현재 시간을 지났으면 비활성화 (이전 로직: 종료 시간 기준)
+                if (hour < currentHour || (hour === currentHour && minute < currentMinute)) {
                     isPastTime = true;
                 }
             }

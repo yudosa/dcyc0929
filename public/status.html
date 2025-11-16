@@ -569,14 +569,14 @@
                     let widthPx = ((endMin - startMin) / 60) * columnWidth;
                     const isHalf = widthPx <= columnWidth * 0.6;
                     const colorClass = colorClasses[(spaceIdx + detailIdx + idx) % colorClasses.length];
-                    // 지난 예약 여부 판단
+                    // 지난 예약 여부 판단 (시작 시간 기준으로 변경)
                     let isPast = false;
                     const today = new Date();
                     const resDate = res.date || '';
-                    let endTimeStr = res.end_time || res.end;
-                    if (resDate && endTimeStr) {
-                        let endDateTime = new Date(resDate + 'T' + (endTimeStr.length === 5 ? endTimeStr : (String(endTimeStr).padStart(2, '0') + ':00')));
-                        isPast = endDateTime < today;
+                    let startTimeStr = res.start_time || res.start;
+                    if (resDate && startTimeStr) {
+                        let startDateTime = new Date(resDate + 'T' + (startTimeStr.length === 5 ? startTimeStr : (String(startTimeStr).padStart(2, '0') + ':00')));
+                        isPast = startDateTime < today;
                     }
                     // 취소된 예약 스타일
                     let cancelledStyle = '';
