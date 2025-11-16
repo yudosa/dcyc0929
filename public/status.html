@@ -419,25 +419,15 @@
     <!-- 관리자 워터마크 -->
     <div id="adminWatermark" style="display:none; position:fixed; top:24px; right:24px; z-index:1001; pointer-events:none; font-size:1.25rem; font-weight:900; color:#e74c3c; opacity:0.18; user-select:none;">관리자 모드</div>
     <script>
-    // 샘플 공간/시설 목록 (세부시설 포함)
+    // 샘플 공간/시설 목록 (세부시설만 포함) - 자유이용 시설 제외
     const spaces = [
-        { name: '닌텐도', id: 'nintendo' },
-        { name: '플레이스테이션', id: 'playstation' },
-        { name: '노래방', id: 'karaoke' },
-        { name: '컴퓨터', id: 'computer' },
-        { name: '북 카페', id: 'reading' },
-        { name: '보드게임', id: 'boardgame' },
-        { name: '기타 이용', id: 'other' },
         { name: '닌텐도', id: 'nintendo', details: ['닌텐도1','닌텐도2','닌텐도3'] },
         { name: '플레이스테이션', id: 'ps', details: ['플레이스테이션1','플레이스테이션2'] },
         { name: '노래방', id: 'karaoke', details: ['노래방1','노래방2'] },
-        { name: '컴퓨터', id: 'computer', details: ['컴퓨터1','컴퓨터2','Mac1','Mac2'] },
-        { name: '북 카페', id: 'reading', details: ['-'] },
-        { name: '보드게임', id: 'boardgame', details: ['-'] },
-        { name: '기타 이용', id: 'other', details: ['-'] }
+        { name: '컴퓨터', id: 'computer', details: ['컴퓨터1','컴퓨터2','Mac1','Mac2'] }
     ];
-    // 샘플 카테고리(필터)
-    const categories = ['전체', '닌텐도', '플레이스테이션', '노래방', '컴퓨터', '북 카페', '보드게임', '기타 이용'];
+    // 샘플 카테고리(필터) - 자유이용 시설 제외
+    const categories = ['전체', '닌텐도', '플레이스테이션', '노래방', '컴퓨터'];
     // 샘플 예약 데이터(detail 필드 포함)
     async function getSampleReservations(date) {
         if (!date) {
