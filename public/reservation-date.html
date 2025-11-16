@@ -1078,6 +1078,20 @@
         
         // 페이지 로드 시 예약 데이터 가져오기
         loadReservationData();
+        
+        // 실시간 업데이트를 위한 자동 새로고침 (15초마다)
+        setInterval(async () => {
+            try {
+                await loadReservationData();
+                // 시간 선택 UI가 표시되어 있다면 업데이트
+                if (document.querySelector('.time-selection-card').style.display !== 'none') {
+                    showTimeSelect();
+                }
+                console.log('예약 데이터 자동 업데이트 완료:', new Date().toLocaleTimeString());
+            } catch (error) {
+                console.error('예약 데이터 자동 업데이트 오류:', error);
+            }
+        }, 15000); // 15초마다 새로고침
     });
     </script>
     

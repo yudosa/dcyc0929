@@ -1116,6 +1116,16 @@
     
     document.addEventListener('DOMContentLoaded', () => loadAndRenderGanttTimeline(selectedCategory));
     document.getElementById('statusDate')?.addEventListener('change', () => loadAndRenderGanttTimeline(selectedCategory));
+    
+    // 실시간 업데이트를 위한 자동 새로고침 (15초마다)
+    setInterval(async () => {
+        try {
+            await loadAndRenderGanttTimeline(selectedCategory);
+            console.log('예약 현황 자동 업데이트 완료:', new Date().toLocaleTimeString());
+        } catch (error) {
+            console.error('자동 업데이트 오류:', error);
+        }
+    }, 15000); // 15초마다 새로고침
     </script>
     
     <script>
